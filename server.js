@@ -24,12 +24,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/generate", (req, res) => {
+  const auth = req.headers.authorization;
+  if (auth !== `Bearer ${process.env.ADMIN_TOKEN}`) {
+    return res.status(403).json({ error: "unauthorized" });
+  }
+
   const key = uuidv4().slice(0, 8);
   const keys = loadKeys();
   keys.push({ key, used: false });
   saveKeys(keys);
   res.json({ key });
 });
+
 
 app.post("/verify", (req, res) => {
   const { key } = req.body;
